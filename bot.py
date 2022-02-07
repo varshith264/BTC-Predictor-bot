@@ -14,11 +14,11 @@ bot = commands.Bot(command_prefix='$')
 @bot.event
 async def on_ready(ctx):
     await bot.change_presence(activity=discord.Game("Predicting btc"))
-    await ctx.send("I'm online!")
-
+    
 
 @bot.command()
 async def working(ctx):
+    """ Checks if bot is online or not"""
     await ctx.send("Yes I'm working")
 
 
