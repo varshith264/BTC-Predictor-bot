@@ -53,6 +53,51 @@ async def pdata(ctx):
     await ctx.send(embed = embed)
 
 
+@bot.command()
+async def lastProfits(ctx):
+    """" Display profit earned through predictions in last N candles based on threshold profit margin as per user"""
+    N=0
+    minProfitPerTrade = 0
+    embedVar = discord.Embed(
+        title="Enter number(between 1 to 980) of candles to track profit", description="", color=0x00ff00)
+    await ctx.send(embed=embedVar)
+
+    try:
+        message = await bot.wait_for('message', timeout=60, check=lambda message: message.author == ctx.author)
+        N = int(message.content)
+    except asyncio.TimeoutError:
+        embedVar = discord.Embed(
+            title="timeup you did not respond, please try again if you wish to", description="", color=0x00ff00)
+        await ctx.send(embed=embedVar)
+        return
+
+    embedVar = discord.Embed(
+        title="Enter minimun profit percentage required for you to enter a trade", description="", color=0x00ff00)
+    await ctx.send(embed=embedVar)
+
+    try:
+        message = await bot.wait_for('message', timeout=60, check=lambda message: message.author == ctx.author)
+        minProfitPerTrade = int(message.content)
+    except asyncio.TimeoutError:
+        embedVar = discord.Embed(
+            title="timeup you did not respond, please try again if you wish to", description="", color=0x00ff00)
+        await ctx.send(embed=embedVar)
+        return
+    if(N>980 or N<1):
+        embedVar = discord.Embed(
+            title="Please enter a valid N, try again if you wish to", description="", color=0x00ff00)
+        await ctx.send(embed=embedVar)
+        return 
+    
+    [netProfit, numberOfTrades] = profitInLastNcandles(N, minProfitPerTrade)
+    embed = discord.Embed(title="Statistics of last "+str(N)+" candles", color=discord.Color.blue())
+    embed.add_field(name="Net Profit earned", value=str(netProfit), inline=False)
+    embed.add_field(name="Number of Trades entered",
+                    value=str(numberOfTrades), inline=False)
+    embed.add_field(name="Avg. profit per trade",
+                    value=str(netProfit/numberOfTrades), inline=False)
+    await ctx.send(embed=embed)
+
 @bot.event
 async def on_disconnect(ctx):
     await ctx.send('Logging off!')
